@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Pong</title>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+        text-align: center;
+        font-family: sans-serif;
+      }
+      #canvas {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>PONG!</h1>
+    <canvas id="canvas" width="900px" height="600px"></canvas>
+    <script>
+      // initial config
+      let player1Score = 0;
+      let player2Score = 0;
+
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const player = {
+        x: 40,
+        y: 250,
+        sizeX: 20,
+        sizeY: 100,
+        color: "white",
+        drawPlayer() {
+          ctx.fillStyle = this.color;
+          ctx.fillRect(this.x, this.y, this.sizeX, this.sizeY);
+        }
+      };
+
+      const player2 = {
+        x: 840,
+        y: 250,
+        sizeX: 20,
+        sizeY: 100,
+        color: "white",
+        drawPlayer() {
+          ctx.fillStyle = this.color;
+          ctx.fillRect(this.x, this.y, this.sizeX, this.sizeY);
+        }
+      };
+
+      const ball = {
+        x: 450,
+        y: 300,
+        r: 10,
+        xSpeed: 5,
+        ySpeed: 5,
+        color: "white",
+        drawBall() {
+          ctx.fillStyle = this.color; //red
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
+          ctx.closePath();
+          ctx.fill();
+        }
+      };
+
+      // prerender
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, 900, 600);
+      player.drawPlayer();
+      player2.drawPlayer();
+      ball.drawBall();
+
+      const randomX = Math.round(Math.random());
+      const randomY = Math.round(Math.random());
+      ball.xSpeed = randomX >= 0.5 ? 5 : -5;
+      ball.ySpeed = randomY >= 0.5 ? 5 : -5;
+
+      function updateScreen() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, 900, 600);
+
+        // w
+        if (pressedKey[87]) {
+          if (player.y > 0) player.y -= 10;
+        }
+        // s
+        if (pressedKey[83]) {
+          if (player.y < 500) player.y += 10;
+        }
+        // arrow up
+        if (pressedKey[38]) {
+          if (player2.y > 0) player2.y -= 10;
+        }
+        // arrow down
+        if (pressedKey[40]) {
+          if (player2.y < 500) player2.y += 10;
+        }
+
+        const playerXBoundary = player.x + 20;
+        const playerYBoundary = player.y + 100;
+        const player2XBoundary = player2.x - 10;
+        const player2YBoundary = player2.y + 100;
+
+        if (ball.y >= 590) {
+          ball.ySpeed = -5;
+        }
+
+        if (ball.y <= 5) {
+          ball.ySpeed = 5;
+        }
+
+        if (ball.x >= 900) {
+          player1Score += 1;
+          ball.x = 450;
+          ball.y = 300;
+
+          const randomX = Math.round(Math.random());
+          const randomY = Math.round(Math.random());
+          ball.xSpeed = randomX >= 0.5 ? 5 : -5;
+          ball.ySpeed = randomY >= 0.5 ? 5 : -5;
+        }
+
+        if (ball.x <= 0) {
+          player2Score += 1;
+          ball.x = 450;
+          ball.y = 300;
+
+          const randomX = Math.round(Math.random());
+          const randomY = Math.round(Math.random());
+          ball.xSpeed = randomX >= 0.5 ? 5 : -5;
+          ball.ySpeed = randomY >= 0.5 ? 5 : -5;
+        }
+
+        if (
+          ball.x === playerXBoundary &&
+          ball.y >= player.y &&
+          ball.y <= playerYBoundary
+        ) {
+          ball.xSpeed = 5;
+        }
+
+        if (
+          ball.x === player2XBoundary &&
+          ball.y >= player2.y &&
+          ball.y <= player2YBoundary
+        ) {
+          ball.xSpeed = -5;
+        }
+
+        ball.x += ball.xSpeed;
+        ball.y += ball.ySpeed;
+
+        player.drawPlayer();
+        player2.drawPlayer();
+        ball.drawBall();
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText(player1Score, 0, 40);
+        ctx.fillText(player2Score, 490, 40);
+
+        requestAnimationFrame(updateScreen);
+      }
+
+      const pressedKey = {
+        87: false,
+        83: false,
+        38: false,
+        40: false
+      };
+
+      window.onkeydown = event => {
+        if (event.keyCode in pressedKey) {
+          pressedKey[event.keyCode] = true;
+        }
+      };
+
+      window.onkeyup = event => {
+        if (event.keyCode in pressedKey) {
+          pressedKey[event.keyCode] = false;
+        }
+      };
+
+      requestAnimationFrame(updateScreen);
+    </script>
+  </body>
+</html>
